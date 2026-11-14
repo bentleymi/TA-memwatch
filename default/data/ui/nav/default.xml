@@ -1,0 +1,7 @@
+<application>
+  <nav>
+    <view name="memwatch_overview" />
+    <view name="memwatch_metrics" />
+    <search label="TA-memwatch Events" search="search index=main sourcetype=memwatch:status" />
+  </nav>
+</application>

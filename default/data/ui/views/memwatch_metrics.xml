@@ -1,0 +1,86 @@
+<dashboard version="1.1" theme="light">
+  <label>TA-memwatch Metrics</label>
+  <description>Index-time metrics over index=metrics (sourcetype=memwatch:metrics)</description>
+  <row>
+    <panel>
+      <title>All memwatch.* series</title>
+      <chart>
+        <search>
+          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
+| 1=1
+| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
+| fields - v*
+| xyseries _time metric_name Value</query>
+          <done/>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Available / swap %</title>
+      <chart>
+        <search>
+          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
+| search metric_name IN ("*avail_pct*","*swap_used_pct*")
+| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
+| fields - v*
+| xyseries _time metric_name Value</query>
+          <done/>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Swap in/out counters (rate to use)</title>
+      <chart>
+        <search>
+          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
+| search metric_name IN ("*pswpin*","*pswpout*")
+| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
+| fields - v*
+| xyseries _time metric_name Value</query>
+          <done/>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>OOM kills (cumulative)</title>
+      <chart>
+        <search>
+          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
+| search metric_name="*oom_kill_total*"
+| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
+| fields - v*
+| xyseries _time metric_name Value</query>
+          <done/>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+      <panel>
+      <title>Top slab (KB)</title>
+      <chart>
+        <search>
+          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
+| search metric_name="*slab_top_kb*"
+| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
+| fields - v*
+| xyseries _time metric_name Value</query>
+          <done/>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+</dashboard>

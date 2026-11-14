@@ -1,0 +1,54 @@
+TA-memwatch
+====
+
+Collects early-warning memory signals from /proc/meminfo, /proc/vmstat and /proc/slabinfo: available-memory percentage, swap usage, cumulative swap-in/out counters, cumulative oom_kill counter (with new-OOM detection via a state file), and the top memory-consuming kernel slab caches. Emits JSON events to index=main (sourcetype memwatch:status) and memwatch.* metrics to index=metrics (sourcetype memwatch:metrics) at 300s, with dashboards.
+
+Prerequisites
+-------------
+  * none - pure /proc reads
+  * Splunk Enterprise or Universal Forwarder 9.x - 10.6 (forwarder recommended
+    on monitored hosts).
+  * A metrics-typed index (default name: metrics) on the indexer:
+
+      [metrics]
+      datatype = metric
+
+    Forwarders only need that index to exist on the indexer side.
+  * No network egress, no root requirement beyond the Splunk service account.
+    Fully standalone add-on with no dependencies.
+
+Install
+-------
+Install on each monitored host (Apps > Install app from file, splunk install
+app, or deployment server), restart Splunk, then verify:
+
+  index=main sourcetype="memwatch:status" | head
+
+Search quick reference
+----------------------
+  index=main sourcetype="memwatch:status" | head
+  | mcatalog values(metric_name) where index=metrics metric_name="memwatch.*" by host
+  | mstats avg("memwatch.*") where index=metrics span=60s by host
+
+Usage
+-----
+Events: index=main sourcetype=memwatch:status  (meminfo summary, vmstat counters, top slabs, oom delta)
+Metrics: memwatch.mem_available_pct, memwatch.swap_used_pct, memwatch.pswpin_total, memwatch.oom_kill_total
+Alarm status on new OOM kill or swap >90%.
+Dashboards: TA-Memwatch > Memwatch Overview / Memwatch Metrics
+
+Configure
+---------
+Override the interval or destination index in etc/apps/TA-memwatch/local/inputs.conf
+(never edit default/).
+
+Troubleshooting
+---------------
+  * slabinfo requires root (splunkd default) for full cache details.
+  * oom_kill_total is cumulative since boot - use the 'oom_new' field for deltas.
+
+License
+-------
+SOURCE-AVAILABLE (see LICENSE) - free personal, educational and evaluation
+use; commercial or production use requires a paid license from BentleyPC
+LLC (https://www.bentleypc.com).

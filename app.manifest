@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "2.0.0",
+  "info": {
+    "title": "Memory Watchdog Add-on (leak / swap thrash / OOM early warning)",
+    "id": {
+      "group": null,
+      "name": "TA-memwatch",
+      "version": "1.0.0"
+    },
+    "author": [{"name":"Michael \"JKat54\" Bentley","email":"michael@bentleypc.com","company":"BentleyPC LLC"}],
+    "releaseDate": "11/14/2026",
+    "description": "Collects early-warning memory signals from /proc/meminfo, /proc/vmstat and /proc/slabinfo: available-memory percentage, swap usage, cumulative swap-in/out counters, cumulative oom_kill counter (with new-OOM detection via a state file), and the top memory-consuming kernel slab caches. Emits JSON events to index=main (sourcetype memwatch:status) and memwatch.* metrics to index=metrics (sourcetype memwatch:metrics) at 300s, with dashboards.",
+    "classification": {
+      "intendedAudience": "IT",
+      "categories": ["IT Operations"],
+      "developmentStatus": "Production/Latest"
+    },
+    "commonInformationModels": null,
+    "license": {
+      "name": "Source Available - Free personal use, commercial use requires paid license from BentleyPC LLC",
+      "text": "LICENSE",
+      "uri": null
+    },
+    "privacyPolicy": {
+      "name": null,
+      "text": null,
+      "uri": null
+    },
+    "releaseNotes": {
+      "name": null,
+      "text": null,
+      "uri": null
+    }
+  },
+  "dependencies": null,
+  "tasks": null,
+  "inputGroups": null,
+  "incompatibleApps": null,
+  "platformRequirements": null,
+  "supportedDeployments": [
+    "_standalone",
+    "_distributed"
+  ],
+  "targetWorkloads": ["_search_heads", "_indexers"]
+}
