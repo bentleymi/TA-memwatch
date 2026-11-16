@@ -3,43 +3,60 @@
   <description>Collects early-warning memory signals from /proc/meminfo, /proc/vmstat and /proc/slabinfo: available-memory percentage, swap usage, cumulative swap-in/out counters, cumulative</description>
   <row>
     <panel>
-      <title>Hosts Reporting (latest)</title>
-      <table>
-        <search>
-          <query>index=main sourcetype="memwatch:status"
-| stats latest(_time) as "Last seen", count as Reports by host
-| table host "Last seen" Reports</query>
-          <done/>
-        </search>
-        <option name="drilldown">none</option>
-      </table>
-    </panel>
-  </row>
-  <row>
-    <panel>
-      <title>Distinct memwatch.* Metrics (last hour)</title>
+      <title>Memory available (% - per host, latest)</title>
       <single>
         <search>
-          <query>| mcatalog values(metric_name) as m where index=metrics metric_name="memwatch.*"
-| eval count=mvcount(m)</query>
+          <query>| mstats avg("memwatch.mem_available_pct") as value where index=metrics span=5m
+| fields - _time | tail 1</query>
           <done/>
         </search>
-        <option name="underLabel">memwatch.* metrics streaming</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Swap used (% - per host, latest)</title>
+      <single>
+        <search>
+          <query>| mstats avg("memwatch.swap_used_pct") as value where index=metrics span=5m
+| fields - _time | tail 1</query>
+          <done/>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>OOM kills (new this window, fleet)</title>
+      <single>
+        <search>
+          <query>| mstats sum("memwatch.oom_new") as value where index=metrics span=5m
+| stats sum(value) as value</query>
+          <done/>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <title>Largest slab (KB, per host, latest)</title>
+      <single>
+        <search>
+          <query>| mstats avg("memwatch.slab_top_kb") as value where index=metrics span=5m
+| fields - _time | tail 1</query>
+          <done/>
+        </search>
       </single>
     </panel>
   </row>
   <row>
     <panel>
-      <title>Issues (newest first)</title>
+      <title>Top slabs - latest per host</title>
       <table>
         <search>
-          <query>index=main sourcetype="memwatch:status" _raw="*alarm*"
-| sort - _time
-| table _time host _raw
-| rename _raw as Event
-| head 200</query>
+          <query>index=main sourcetype="memwatch:status"
+| dedup host
+| spath input=_raw output=x path=top_slabs{}
+| mvexpand x
+| spath input=x
+| table host slab name kb</query>
           <done/>
         </search>
+        <option name="count">50</option>
         <option name="drilldown">none</option>
       </table>
     </panel>

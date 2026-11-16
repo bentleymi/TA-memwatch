@@ -1,83 +1,62 @@
 <dashboard version="1.1" theme="light">
   <label>TA-memwatch Metrics</label>
-  <description>Index-time metrics over index=metrics (sourcetype=memwatch:metrics)</description>
+  <description> Index-time metrics over index=metrics (sourcetype memwatch:metrics); series prefixed 'memwatch.'.</description>
   <row>
     <panel>
-      <title>All memwatch.* series</title>
+      <title>Memory (MB: total / available)</title>
       <chart>
         <search>
-          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
-| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
-| fields - v*
-| xyseries _time metric_name Value</query>
+          <query>| mstats avg("memwatch.mem_*_mb") as "v*" where index=metrics by metric_name span=5m
+| rename v* as "memwatch.mem_*_mb"</query>
           <done/>
         </search>
         <option name="charting.chart">line</option>
-        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.nullValueRendering">connect</option>
         <option name="charting.drilldown">none</option>
       </chart>
     </panel>
-      <panel>
-      <title>Available / swap %</title>
+  </row>
+  <row>
+    <panel>
+      <title>Percentages (memory available / swap used)</title>
       <chart>
         <search>
-          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
-| search metric_name IN ("available_pct","swap_used_pct")
-| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
-| fields - v*
-| xyseries _time metric_name Value</query>
+          <query>| mstats avg("memwatch.*_pct") as "v*" where index=metrics by metric_name span=5m
+| rename v* as "memwatch.*_pct"</query>
           <done/>
         </search>
         <option name="charting.chart">line</option>
-        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.nullValueRendering">connect</option>
         <option name="charting.drilldown">none</option>
       </chart>
     </panel>
-      <panel>
-      <title>Swap in/out counters (rate to use)</title>
+  </row>
+  <row>
+    <panel>
+      <title>OOM kills (new per cycle / known total)</title>
       <chart>
         <search>
-          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
-| search metric_name IN ("*pswpin*","*pswpout*")
-| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
-| fields - v*
-| xyseries _time metric_name Value</query>
+          <query>| mstats avg("memwatch.oom_*") as "v*" where index=metrics by metric_name span=5m
+| rename v* as "memwatch.oom_*"</query>
           <done/>
         </search>
         <option name="charting.chart">line</option>
-        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.nullValueRendering">connect</option>
         <option name="charting.drilldown">none</option>
       </chart>
     </panel>
-      <panel>
-      <title>OOM kills (cumulative)</title>
+  </row>
+  <row>
+    <panel>
+      <title>Swap I/O (pages, cumulative)</title>
       <chart>
         <search>
-          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
-| search metric_name="*oom_kill_total*"
-| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
-| fields - v*
-| xyseries _time metric_name Value</query>
+          <query>| mstats avg("memwatch.pswap*") as "v*" where index=metrics by metric_name span=5m
+| rename v* as "memwatch.pswap*"</query>
           <done/>
         </search>
         <option name="charting.chart">line</option>
-        <option name="charting.chart.showDataLabels">none</option>
-        <option name="charting.drilldown">none</option>
-      </chart>
-    </panel>
-      <panel>
-      <title>Top slab (KB)</title>
-      <chart>
-        <search>
-          <query>| mstats avg("memwatch.*") as "v*" where index=metrics by metric_name span=5m
-| search metric_name="*slab_top_kb*"
-| foreach v* [eval Value=coalesce(Value,&lt;&lt;FIELD&gt;&gt;)]
-| fields - v*
-| xyseries _time metric_name Value</query>
-          <done/>
-        </search>
-        <option name="charting.chart">line</option>
-        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.nullValueRendering">connect</option>
         <option name="charting.drilldown">none</option>
       </chart>
     </panel>
