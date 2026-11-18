@@ -1,6 +1,7 @@
 """Shared collection logic for TA-memwatch scripted inputs (meminfo/vmstat/slabinfo early warning)."""
 import json
 import os
+import subprocess
 import sys
 import time
 
@@ -55,8 +56,26 @@ def _parse_vmstat():
     return vals
 
 
-def _parse_slabinfo():
+def _read_slabinfo():
     text = read_file(SLABINFO)
+    if text is not None:
+        return text
+    try:
+        proc = subprocess.run(
+            ["/usr/bin/sudo", "-n", "/bin/cat", SLABINFO],
+            capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError) as exc:
+        sys.stderr.write("TA-memwatch slabinfo sudo fallback failed: %s\n" % exc)
+        return None
+    if proc.returncode != 0:
+        sys.stderr.write("TA-memwatch slabinfo sudo fallback failed: rc=%d %s\n"
+                         % (proc.returncode, (proc.stderr or "").strip()))
+        return None
+    return proc.stdout
+
+
+def _parse_slabinfo():
+    text = _read_slabinfo()
     if text is None:
         return []
     entries = []
@@ -85,12 +104,18 @@ def _load_state():
 
 
 def _save_state(state):
+    tmp = "%s.%d.tmp" % (STATE_FILE, os.getpid())
     try:
-        os.makedirs("/var/tmp", exist_ok=True)
-        with open(STATE_FILE, "w") as fh:
+        os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
+        with open(tmp, "w") as fh:
             json.dump(state, fh)
-    except (OSError, TypeError, ValueError):
-        pass
+        os.replace(tmp, STATE_FILE)
+    except (OSError, TypeError, ValueError) as exc:
+        sys.stderr.write("TA-memwatch state save failed: %s\n" % exc)
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
 
 
 def discover():

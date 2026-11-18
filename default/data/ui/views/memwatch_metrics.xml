@@ -51,8 +51,8 @@
       <title>Swap I/O (pages, cumulative)</title>
       <chart>
         <search>
-          <query>| mstats avg("memwatch.pswap*") as "v*" where index=metrics by metric_name span=5m
-| rename v* as "memwatch.pswap*"</query>
+          <query>| mstats avg("memwatch.pswp*") as "v*" where index=metrics by metric_name span=5m
+| rename v* as "memwatch.pswp*"</query>
           <done/>
         </search>
         <option name="charting.chart">line</option>

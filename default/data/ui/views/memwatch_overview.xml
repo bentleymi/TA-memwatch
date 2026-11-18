@@ -3,7 +3,7 @@
   <description>Collects early-warning memory signals from /proc/meminfo, /proc/vmstat and /proc/slabinfo: available-memory percentage, swap usage, cumulative swap-in/out counters, cumulative</description>
   <row>
     <panel>
-      <title>Memory available (% - per host, latest)</title>
+      <title>Memory available (% - fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("memwatch.mem_available_pct") as value where index=metrics span=5m
@@ -13,7 +13,7 @@
       </single>
     </panel>
     <panel>
-      <title>Swap used (% - per host, latest)</title>
+      <title>Swap used (% - fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("memwatch.swap_used_pct") as value where index=metrics span=5m
@@ -33,7 +33,7 @@
       </single>
     </panel>
     <panel>
-      <title>Largest slab (KB, per host, latest)</title>
+      <title>Largest slab (KB, fleet, latest)</title>
       <single>
         <search>
           <query>| mstats avg("memwatch.slab_top_kb") as value where index=metrics span=5m
@@ -51,9 +51,10 @@
           <query>index=main sourcetype="memwatch:status"
 | dedup host
 | spath input=_raw output=x path=top_slabs{}
+| where isnotnull(x) AND x!=""
 | mvexpand x
 | spath input=x
-| table host slab name kb</query>
+| table host name kb</query>
           <done/>
         </search>
         <option name="count">50</option>
