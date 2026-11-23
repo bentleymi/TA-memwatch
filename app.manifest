@@ -7,12 +7,20 @@
       "name": "TA-memwatch",
       "version": "1.0.2"
     },
-    "author": [{"name":"Michael \"JKat54\" Bentley","email":"michael@bentleypc.com","company":"BentleyPC LLC"}],
+    "author": [
+      {
+        "name": "Michael \"JKat54\" Bentley",
+        "email": "michael@bentleypc.com",
+        "company": "BentleyPC LLC"
+      }
+    ],
     "releaseDate": "11/18/2026",
     "description": "Collects early-warning memory signals from /proc/meminfo, /proc/vmstat and /proc/slabinfo: available-memory percentage, swap usage, cumulative swap-in/out counters, cumulative oom_kill counter (with new-OOM detection via a state file), and the top memory-consuming kernel slab caches. Emits JSON events to index=main (sourcetype memwatch:status) and memwatch.* metrics to index=metrics (sourcetype memwatch:metrics) at 300s, with dashboards.",
     "classification": {
       "intendedAudience": "IT",
-      "categories": ["IT Operations"],
+      "categories": [
+        "IT Operations"
+      ],
       "developmentStatus": "Production/Latest"
     },
     "commonInformationModels": null,
@@ -41,5 +49,9 @@
     "_standalone",
     "_distributed"
   ],
-  "targetWorkloads": ["_search_heads", "_indexers"]
+  "targetWorkloads": [
+    "_search_heads",
+    "_indexers"
+  ],
+  "version": "1.0.8"
 }
